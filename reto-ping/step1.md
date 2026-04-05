@@ -1,17 +1,11 @@
-### 🆔 Paso 1: Registro de Estudiante
-Para que tu nota se registre en el sistema de **IRSI**, primero identifícate:
-
-`export ESTUDIANTE='Escribe_Tu_Nombre_Aqui'`{{copy}}
-
----
-
-### 📡 Paso 2: Prueba de Latencia
-Ejecuta un diagnóstico de 4 paquetes hacia el nodo central:
+### 📡 Paso 1: Prueba de Latencia
+Ejecuta un diagnóstico de 4 paquetes hacia el nodo central para medir la salud de la red:
 
 `ping -c 4 google.com`{{execute}}
 
 ---
 
-### 📝 Paso 3: Finalizar
-Una vez veas las estadísticas (min/avg/max), haz clic en el botón **Check** de abajo. 
-Si el sistema detecta el éxito, tu resultado se enviará automáticamente a nuestro panel de control.
+### 📝 Paso 2: Registro y Finalización
+Una vez veas las estadísticas en la terminal, haz clic en el botón **CHECK**.
+
+**Nota:** La terminal te pedirá tu nombre completo para enviarlo al sistema de notas de **IRSI**. Escríbelo allí mismo y presiona **Enter**.

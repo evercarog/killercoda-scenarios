@@ -1,32 +1,36 @@
 #!/bin/bash
 
-# 1. Definir nombre (Forzado para pruebas)
-ESTUDIANTE_NAME="Ever_Caro_Test"
-
-# 2. Intentar capturar datos
-echo "Iniciando verificación..." > /tmp/debug.log
-LAT_AVG=$(ping -c 2 google.com | tail -1 | awk -F '/' '{print $5}')
-IP_REMOTA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
-
-echo "Latencia: $LAT_AVG | IP: $IP_REMOTA" >> /tmp/debug.log
-
-# 3. URL de tu Webhook
+# --- CONFIGURACIÓN ---
 URL_WEBHOOK="https://script.google.com/macros/s/AKfycbxYS-Fj3fZEroUonK259XsMMaMceHbmdqz3y-EEmXX088lCYtGALgSlwdbOAymKZK97/exec"
 
-# 4. Petición con verbiose para ver errores
-echo "Enviando a Google..." >> /tmp/debug.log
+# 1. Capturar el nombre del estudiante de forma interactiva
+echo "========================================"
+echo "      CERTIFICACIÓN DE REDES - IRSI     "
+echo "========================================"
+printf "👤 Nombre del Estudiante: "
+read -r NOMBRE
+
+# 2. Capturar métricas reales del sistema (Ping a Google)
+echo "📡 Verificando conexión y capturando métricas..."
+LAT_AVG=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
+IP_REMOTA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
+
+# 3. Validación de seguridad
+if [ -z "$LAT_AVG" ]; then
+    echo "❌ Error: No se detecta conectividad. El reto no puede ser certificado."
+    exit 1
+fi
+
+# 4. Enviar a Google Sheets
+echo "🚀 Enviando reporte al panel de control..."
 RESPONSE=$(curl -L -s -X POST "$URL_WEBHOOK" \
   -H "Content-Type: application/json" \
-  -d "{\"nombre\": \"$ESTUDIANTE_NAME\", \"ip\": \"$IP_REMOTA\", \"latencia\": \"$LAT_AVG\"}")
+  -d "{\"nombre\": \"$NOMBRE\", \"ip\": \"$IP_REMOTA\", \"latencia\": \"$LAT_AVG\"}")
 
-echo "Respuesta de Google: $RESPONSE" >> /tmp/debug.log
-
-# 5. Lógica de salida
+# 5. Resultado final
 if [[ "$RESPONSE" == *"Registro Exitoso"* ]]; then
-  echo "✅ ¡Conexión con IRSI Exitosa!"
-  exit 0
+    echo "✅ ¡Felicidades $NOMBRE! Tu registro en IRSI ha sido exitoso."
 else
-  echo "❌ Error. Revisa el log con: cat /tmp/debug.log"
-  echo "Respuesta recibida: $RESPONSE"
-  exit 1
+    echo "⚠️ Respuesta del servidor: $RESPONSE"
+    echo "Revisa la conexión o el script de Google."
 fi

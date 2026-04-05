@@ -30,7 +30,7 @@ IP_REMOTA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
 LAT_AVG=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
 
 # 4. Enviar a Google Sheets
-URL_WEBHOOK="TU_URL_DE_APPS_SCRIPT_AQUI"
+URL_WEBHOOK="https://script.google.com/macros/s/AKfycbxYS-Fj3fZEroUonK259XsMMaMceHbmdqz3y-EEmXX088lCYtGALgSlwdbOAymKZK97/exec"
 
 echo "📡 Enviando reporte a IRSI..."
 RESPONSE=$(curl -L -s -X POST "$URL_WEBHOOK" \

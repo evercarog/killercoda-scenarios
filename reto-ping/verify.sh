@@ -1,31 +1,33 @@
 #!/bin/bash
 
-# 1. Validar identificación
+# 1. ¿Se identificó?
 if [ -z "$ESTUDIANTE" ]; then
-  echo "⚠️ Identificación requerida. Usa: export ESTUDIANTE='Tu Nombre'"
+  echo "⚠️ Por favor, ejecuta el Paso 1 para identificarte."
   exit 1
 fi
 
-# 2. Extraer datos del último ping exitoso
-# Buscamos en el historial el último comando ping y extraemos IP y latencia media
-LAST_PING=$(tail -n 20 ~/.bash_history | grep "ping -c 4" | tail -n 1)
-
-if [ -z "$LAST_PING" ]; then
-  echo "❌ No has ejecutado el comando solicitado: ping -c 4 google.com"
+# 2. Validar que el ping se hizo (buscando en el historial de root)
+if ! grep -q "ping -c 4" /root/.bash_history; then
+  echo "❌ No detecto el comando 'ping -c 4 google.com' en tu historial."
   exit 1
 fi
 
-# Simulamos la extracción de datos reales de la red para tu reporte
-IP_DETECTADA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
-LATENCIA=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
+# 3. Extraer métricas reales para IRSI
+# Extraemos la IP (172.253.62.139 en tu caso) y el promedio (18.255 ms)
+IP_REMOTA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
+LAT_AVG=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
 
-# 3. Envío de telemetría a IRSI (Tu Google Sheet)
+# 4. Enviar al registro de IRSI (Tu Webhook de Google)
 URL_WEBHOOK="https://script.google.com/macros/s/AKfycbxYS-Fj3fZEroUonK259XsMMaMceHbmdqz3y-EEmXX088lCYtGALgSlwdbOAymKZK97/exec"
 
-curl -L -X POST $URL_WEBHOOK \
+RESPONSE=$(curl -L -s -X POST $URL_WEBHOOK \
   -H "Content-Type: application/json" \
-  -d "{\"nombre\": \"$ESTUDIANTE\", \"ip\": \"$IP_DETECTADA\", \"latencia\": \"$LATENCIA\"}" \
-  --silent > /dev/null
+  -d "{\"nombre\": \"$ESTUDIANTE\", \"ip\": \"$IP_REMOTA\", \"latencia\": \"$LAT_AVG\"}")
 
-echo "✅ Verificado. Datos enviados al registro de IRSI."
-exit 0
+if [[ "$RESPONSE" == *"Registro Exitoso"* ]]; then
+  echo "✅ ¡Excelente trabajo, $ESTUDIANTE! Datos enviados a IRSI."
+  exit 0
+else
+  echo "⚠️ Error al conectar con el servidor de notas. Intenta de nuevo."
+  exit 1
+fi

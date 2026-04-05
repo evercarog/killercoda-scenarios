@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 1. Si la variable no existe, pedirla interactivamente
+# 1. Pedir nombre si no existe
 if [ -z "$ESTUDIANTE" ]; then
   echo "------------------------------------------------"
   echo "📝 REGISTRO DE ESTUDIANTE IRSI"
@@ -8,40 +8,43 @@ if [ -z "$ESTUDIANTE" ]; then
   printf "Por favor, ingresa tu nombre completo: "
   read -r ESTUDIANTE
   
-  # Validar que no lo deje en blanco
   if [ -z "$ESTUDIANTE" ]; then
-    echo "⚠️ Error: El nombre es obligatorio para registrar la nota."
+    echo "⚠️ Error: El nombre es obligatorio."
     exit 1
   fi
-  # Exportar para que quede en la sesión actual
   export ESTUDIANTE
 fi
 
-# 2. Verificar que el ping se realizó
-# Buscamos en el historial del shell actual
-if ! history | grep -q "ping -c 4"; then
-  echo "❌ Error: No se detecta el comando 'ping -c 4 google.com'."
-  echo "Debes ejecutar el paso 2 antes de finalizar."
+# 2. VALIDACIÓN TÉCNICA (En lugar de historial)
+# Intentamos capturar la latencia. Si falla, es que no hay conexión o no se hizo el ping.
+LAT_AVG=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
+
+if [ -z "$LAT_AVG" ]; then
+  echo "❌ Error: No se pudo obtener métricas de red."
+  echo "Asegúrate de haber ejecutado el ping correctamente."
   exit 1
 fi
 
-# 3. Extraer métricas reales
+# 3. Extraer IP remota
 IP_REMOTA=$(ping -c 1 google.com | grep PING | awk '{print $3}' | tr -d '()')
-LAT_AVG=$(ping -c 4 google.com | tail -1 | awk -F '/' '{print $5}')
 
 # 4. Enviar a Google Sheets
 URL_WEBHOOK="https://script.google.com/macros/s/AKfycbxYS-Fj3fZEroUonK259XsMMaMceHbmdqz3y-EEmXX088lCYtGALgSlwdbOAymKZK97/exec"
 
 echo "📡 Enviando reporte a IRSI..."
-RESPONSE=$(curl -L -s -X POST "$URL_WEBHOOK" \
+
+# Usamos --max-time para que el script no se quede colgado si falla el internet
+RESPONSE=$(curl -L -s --max-time 10 -X POST "$URL_WEBHOOK" \
   -H "Content-Type: application/json" \
   -d "{\"nombre\": \"$ESTUDIANTE\", \"ip\": \"$IP_REMOTA\", \"latencia\": \"$LAT_AVG\"}")
 
+# Depuración: Si falla, mostramos qué respondió el servidor (útil para ti)
 if [[ "$RESPONSE" == *"Registro Exitoso"* ]]; then
   echo "✅ ¡Excelente trabajo, $ESTUDIANTE!"
-  echo "Tu resultado ha sido registrado correctamente."
+  echo "Tu resultado ha sido registrado correctamente en el panel de IRSI."
   exit 0
 else
-  echo "⚠️ Error de conexión. Revisa el Apps Script o la URL."
+  echo "⚠️ El servidor de IRSI respondió: $RESPONSE"
+  echo "Revisa si el Apps Script está publicado como 'Cualquiera' (Anyone)."
   exit 1
 fi

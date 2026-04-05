@@ -1,17 +1,17 @@
-### 🕵️‍♂️ Misión: Interceptar a Google
+### 🆔 Paso 1: Registro de Estudiante
+Para que tu nota se registre en el sistema de **IRSI**, primero identifícate:
 
-Ejecuta el siguiente comando en la terminal de la derecha:
+`export ESTUDIANTE='Escribe_Tu_Nombre_Aqui'`{{copy}}
+
+---
+
+### 📡 Paso 2: Prueba de Latencia
+Ejecuta un diagnóstico de 4 paquetes hacia el nodo central:
 
 `ping -c 4 google.com`{{execute}}
 
 ---
 
-### 📝 Tu Reporte de Inteligencia
-Una vez que el comando termine, observa los resultados y responde:
-
-1. **Dirección IP:** ¿A qué dirección numérica respondió el servidor? (Está entre paréntesis).
-2. **TTL (Time to Live):** ¿Cuál es el valor del TTL? 
-   > *Tip: Si es cercano a 128 es Windows, si es cercano a 64 es Linux.*
-3. **Latencia (time):** Busca el valor en milisegundos (ms). ¿Qué tan rápido viajó tu paquete?
-
-**Reto extra:** ¿Puedes hacerle ping a la IP de los servidores de **Palmagro**?
+### 📝 Paso 3: Finalizar
+Una vez veas las estadísticas (min/avg/max), haz clic en el botón **Check** de abajo. 
+Si el sistema detecta el éxito, tu resultado se enviará automáticamente a nuestro panel de control.

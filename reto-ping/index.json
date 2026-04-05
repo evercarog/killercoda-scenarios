@@ -1,19 +1,16 @@
 {
-  "title": "Misión: El Rastro del Paquete",
-  "description": "Aprende a identificar IPs, TTL y Latencia con el comando ping.",
+  "title": "IRSI: Diagnóstico de Conectividad Base",
+  "description": "Certificación de uso de herramientas de diagnóstico ICMP.",
   "details": {
     "steps": [
       {
-        "title": "Analizando la Respuesta",
-        "text": "step1.md"
+        "title": "Análisis de Paquetes",
+        "text": "step1.md",
+        "verify": "verify.sh"
       }
     ],
-    "intro": {
-      "text": "intro.md"
-    },
-    "finish": {
-      "text": "finish.md"
-    }
+    "intro": { "text": "intro.md" },
+    "finish": { "text": "finish.md" }
   },
   "backend": {
     "imageid": "ubuntu"
